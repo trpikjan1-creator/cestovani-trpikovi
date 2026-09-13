@@ -201,7 +201,7 @@ var SEED=[{"id": "mauricius", "order": 0, "name": "Mauricius", "subtitle": "Le P
 var DAYCOL=["#0e9aa7","#2f77c9","#e8862c","#d5484a","#2f9e63","#d9a400","#7a5cc9"];
 var CATICON={"Přesun":"🚗","Pláž":"🏖️","Příroda":"🌿","Kultura":"🛕","Muzeum":"🏛️","Zvířata":"🦁","Jídlo":"🍽️","Nákupy":"🛍️","Moře":"🌊","Vyhlídka":"🌄","Ostatní":"📍"};
 var CATCOL={"Přesun":"#e3e9ee","Pláž":"#d6f0f5","Příroda":"#dcefe0","Kultura":"#efe4d6","Muzeum":"#e8e0f2","Zvířata":"#f5e6d0","Jídlo":"#ffe9d9","Nákupy":"#f3ddef","Moře":"#d5e6f7","Vyhlídka":"#fdf0c8","Ostatní":"#e8eef3"};
-var LS="cestovani_v2", PINK="cestovani_pin";
+var LS="cestovani_v2", PINK="cestovani_pin", SVK="cestovani_seedver", SEEDVER="20260913-102915";
 var state={trips:{},view:"list",tripId:null,edit:false};
 var CATS=["Přesun","Pláž","Příroda","Kultura","Muzeum","Zvířata","Jídlo","Nákupy","Moře","Vyhlídka","Ostatní"];
 
@@ -223,10 +223,21 @@ window.__imgerr=function(img){var w=img.getAttribute('data-w')||'960';var nx={'9
 function imgTag(url,cls){return '<img '+(cls?'class="'+cls+'" ':'')+'data-w="960" src="'+esc(url)+'" loading="lazy" referrerpolicy="no-referrer" onerror="window.__imgerr(this)">';}
 
 /* ---------- storage ---------- */
+function seedIds(){return (SEED||[]).map(function(t){return t.id;});}
 function init(){
  var loc=loadLocal();
- if(loc && Object.keys(loc).length){state.trips=loc;}
- else{state.trips={};if(SEED){SEED.forEach(function(t){state.trips[t.id]=t;});}saveLocal();}
+ var storedVer=null;try{storedVer=localStorage.getItem(SVK);}catch(e){}
+ if(loc && Object.keys(loc).length){
+   state.trips=loc;
+   /* New build? Refresh the pre-loaded trips (Mauricius), keep user's own trips. */
+   if(storedVer!==SEEDVER && SEED){
+     SEED.forEach(function(t){state.trips[t.id]=t;});
+     saveLocal();
+   }
+ } else {
+   state.trips={};if(SEED){SEED.forEach(function(t){state.trips[t.id]=t;});}saveLocal();
+ }
+ try{localStorage.setItem(SVK,SEEDVER);}catch(e){}
  render();
 }
 function persist(t){state.trips[t.id]=t;saveLocal();render();}
