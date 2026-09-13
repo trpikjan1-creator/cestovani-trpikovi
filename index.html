@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e9aa7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cestování">
+<title>Cestování</title>
+</head>
+<body>
+<style>
+:root{
+  --bg:#f3f5f8; --card:#ffffff; --ink:#182430; --mut:#5b6b7a; --line:#e2e8ef;
+  --accent:#0e9aa7; --accentink:#0a6f78; --danger:#d5484a; --shadow:0 1px 3px rgba(20,40,60,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-text-size-adjust:100%}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit;font-size:16px}
+.app{max-width:760px;margin:0 auto;min-height:100vh;background:var(--bg)}
+
+/* top bar */
+.top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(14,110,140,.25)}
+.top h1{font-size:18px;font-weight:800;margin:0;letter-spacing:.2px;flex:1;display:flex;align-items:center;gap:8px}
+.top .sub{font-size:12px;font-weight:600;opacity:.85}
+.iconbtn{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:9px;padding:8px 12px;font-weight:700;font-size:14px}
+.iconbtn:hover{background:rgba(255,255,255,.3)}
+.back{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:9px;padding:8px 11px;font-weight:800}
+
+.wrap{padding:16px}
+.muted{color:var(--mut)}
+.center{text-align:center}
+
+/* trip cards */
+.tripcard{display:flex;align-items:stretch;gap:0;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.tripcard .stripe{width:7px;flex:none}
+.tripcard .body{padding:14px 16px;flex:1;min-width:0}
+.tripcard .body h2{margin:0 0 3px;font-size:18px;font-weight:800}
+.tripcard .meta{font-size:13px;color:var(--mut)}
+.tripcard .go{align-self:center;padding:0 16px;color:var(--mut);font-size:26px;font-weight:800}
+
+/* trip header */
+.thead{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin-bottom:16px;border-left:7px solid var(--accent)}
+.thead h2{margin:0 0 4px;font-size:22px;font-weight:800}
+.thead .tsub{font-size:14px;color:var(--mut)}
+.thead .trow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+
+/* day */
+.day{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden}
+.day.leftover{background:#fffbeb;border-color:#f0dc9a}
+.dhead{display:flex;align-items:center;gap:12px;padding:13px 15px;background:#eef4f8;border-bottom:1px solid var(--line)}
+.day.leftover .dhead{background:#fdf3c9}
+.dnum{background:var(--accent);color:#fff;font-weight:800;border-radius:9px;padding:7px 11px;font-size:13px;text-align:center;white-space:nowrap;line-height:1.15}
+.dnum small{display:block;font-size:10px;font-weight:600;opacity:.9}
+.dtitle{flex:1;min-width:0}
+.dtitle b{font-size:16px;font-weight:800;display:block}
+.dtitle .dm{font-size:12.5px;color:var(--mut)}
+
+/* stop */
+.stop{padding:11px 15px;border-bottom:1px solid var(--line)}
+.stop:last-child{border-bottom:none}
+.stoptop{display:flex;gap:10px;align-items:baseline}
+.time{font-weight:800;color:var(--accentink);font-size:14px;flex:none;min-width:44px}
+.sname{font-weight:700;font-size:15px;flex:1;min-width:0}
+.chip{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e8eef3;color:#4a5b6a;white-space:nowrap}
+.sdesc{font-size:14px;color:#40515f;margin:5px 0 0 54px}
+.sbtns{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 2px 54px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700;text-decoration:none;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:#f7fafc;color:var(--accentink)}
+.pill:hover{background:#eef4f8}
+.pill.price{color:#7a5b12;background:#fff8e6;border-color:#f0dc9a}
+.pill.mini{border:none;background:transparent;padding:5px 7px;color:var(--mut)}
+.pill.mini:hover{background:#eef2f6}
+.pill.del:hover{background:#fdecec;color:var(--danger)}
+
+.addrow{padding:10px 15px}
+.addbtn{width:100%;border:1.5px dashed #c3d2de;background:#f7fafc;color:var(--accentink);border-radius:10px;padding:10px;font-weight:700;font-size:14px}
+.addbtn:hover{background:#eef4f8}
+.addday{margin-top:2px}
+
+/* generic buttons */
+.btn{border:none;border-radius:10px;padding:11px 16px;font-weight:700;font-size:15px}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accentink)}
+.btn.ghost{background:#eef2f6;color:var(--ink)}
+.btn.danger{background:#fbeaea;color:var(--danger)}
+.row2{display:flex;gap:10px}
+.row2>*{flex:1}
+
+/* empty */
+.empty{text-align:center;padding:48px 20px;color:var(--mut)}
+.empty .big{font-size:44px;margin-bottom:8px}
+
+/* modal */
+.ovl{position:fixed;inset:0;background:rgba(15,30,45,.5);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.ovl.open{display:flex}
+@media(min-width:560px){.ovl{align-items:center;padding:20px}}
+.sheet{background:#fff;width:100%;max-width:520px;border-radius:16px 16px 0 0;max-height:92vh;overflow-y:auto;box-shadow:0 -4px 30px rgba(0,0,0,.25)}
+@media(min-width:560px){.sheet{border-radius:16px}}
+.sheet h3{margin:0;padding:16px 18px;font-size:18px;font-weight:800;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff}
+.form{padding:16px 18px}
+.field{margin-bottom:13px}
+.field label{display:block;font-size:12.5px;font-weight:700;color:var(--mut);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fbfcfd;color:var(--ink)}
+.field textarea{min-height:78px;resize:vertical}
+.formbtns{display:flex;gap:10px;padding:4px 18px 20px}
+.formbtns .btn{flex:1}
+.delzone{padding:0 18px 18px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#182430;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600;z-index:80;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:.96}
+.footnote{text-align:center;color:#9aabb8;font-size:12px;padding:10px 16px 40px}
+.syncbadge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.2)}
+</style>
+
+<div class="app">
+  <div class="top">
+    <button class="back" id="backBtn" data-act="back" hidden>‹</button>
+    <h1>✈️ Cestování <span class="syncbadge" id="syncBadge" hidden></span></h1>
+    <button class="iconbtn" id="addTripBtn" data-act="addTrip">+ Cesta</button>
+  </div>
+  <div class="wrap" id="view"></div>
+  <div class="footnote" id="foot"></div>
+</div>
+
+<div class="ovl" id="ovl"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+(function(){
+var SEED_TRIPS=[{"base": "Le Palmiste Resort & Spa, Trou aux Biches", "color": "#0e9aa7", "dateFrom": "2026-09-17", "dateTo": "2026-09-23", "days": [{"date": "čt 17. 9.", "id": "d1", "label": "DEN 1", "leftover": false, "meta": "Přílet a aktivní start na severu", "stops": [{"category": "Přesun", "desc": "(jihovýchod) — pasová kontrola, přesun na sever. Auto řešíme zvlášť (viz sekce Auto níže); z letiště na hotel ~1 h 10 min.", "id": "s1_letiste", "mapQuery": "Sir Seewoosagur Ramgoolam International Airport, Mauritius", "name": "Přílet na letiště SSR", "price": "", "time": "dopo"}, {"category": "Přesun", "desc": "rychle vybalit a hurá ven. Jezdí se vlevo — prvních pár kruháčů v klidu.", "id": "s2_hotel", "mapQuery": "Le Palmiste Resort & Spa, Trou aux Biches, Mauritius", "name": "Check-in Le Palmiste Resort & Spa", "price": "", "time": "14:00"}, {"category": "Zvířata", "desc": "(Pointe aux Piments, 10 min od hotelu) — žraloci, želvy, murény a korálové nádrže; příjemný aktivní start po cestě. Vstup ~Rs 500 ≈ 225 Kč/os.", "id": "s3_x", "mapQuery": "Mauricijské akvárium, Mauritius", "name": "Mauricijské akvárium", "price": "~Rs 500 ≈ 225 Kč/os.", "time": "15:00"}, {"category": "Pláž", "desc": "nejdelší pláž severu; půjčení SUP nebo šnorchlu přímo na místě, teplá klidná laguna. 10 min", "id": "s4_mont_choisy", "mapQuery": "Mont Choisy Beach, Mauritius", "name": "Šnorchl / paddleboard u Mont Choisy", "price": "zdarma", "time": "16:30"}, {"category": "Pláž", "desc": "slunce zapadá ~18:10 přímo nad mořem; večeře v některé z restaurací podél pláže nebo v Trou aux Biches.", "id": "s5_x", "mapQuery": "Západ slunce a večeře, Mauritius", "name": "Západ slunce a večeře", "price": "", "time": "18:00"}]}, {"date": "pá 18. 9.", "id": "d2", "label": "DEN 2", "leftover": false, "meta": "Velryby a výšlap na Le Morne Brabant 🐋⛰️", "stops": [{"category": "Přesun", "desc": "po prázdné dálnici do Black River. ~1 h", "id": "s1_x", "mapQuery": "Brzký odjezd na západ, Mauritius", "name": "Brzký odjezd na západ", "price": "", "time": "5:00"}, {"category": "Moře", "desc": "sraz v 6:00 na místě dle vaší rezervace ( 📍 místo srazu ). Vorvani tu žijí celoročně, v září připlouvají i keporkaci. ⚠️ Při větru se sraz posouvá na 10:30 — pak celý den o pár hodin posuňte.", "id": "s2_velryby", "mapQuery": "Whale watching Black River, Mauritius", "name": "Plavání s velrybami a delfíny", "price": "plavání ~€120–150 ≈ 3 000–3 700 Kč/os. · jen pozorování ~€50 ≈ 1 200 Kč", "time": "6:00"}, {"category": "Jídlo", "desc": "Black River / La Gaulette: čerstvé ryby a kreolské kari s výhledem na horu Le Morne.", "id": "s3_x", "mapQuery": "Oběd na západě, Mauritius", "name": "Oběd na západě", "price": "", "time": "~10:30"}, {"category": "Příroda", "desc": "legendární hora uprchlých otroků. Značená stezka vede na náhorní plošinu (~2,5–3 h tam a zpět, 556 m, poslední úsek strmý); na samotný vrchol jen s průvodcem. Vezměte hodně vody, pevné boty a čepici — stín skoro není. Výhledy na tyrkysové laguny a „podmořský vodopád“ jsou nezapomenutelné.", "id": "s4_le_morne", "mapQuery": "Le Morne Public Beach, Mauritius", "name": "Výšlap na Le Morne Brabant (UNESCO)", "price": "pláž zdarma", "time": "12:00"}, {"category": "Vyhlídka", "desc": "slavná skalní zákruta nad oceánem na jihozápadním cípu: betonový balkonek nad tříštícími se vlnami, vpravo pohled zpět na Le Morne. Klasická pohlednicová fotka a krásný závěr náročného dne.", "id": "s5_maconde", "mapQuery": "Maconde View Point, Baie du Cap, Mauritius", "name": "Vyhlídka Maconde", "price": "zdarma", "time": "16:30"}, {"category": "Jídlo", "desc": "zasloužená večeře po nabitém dni.", "id": "s6_x", "mapQuery": "Návrat na hotel, Mauritius", "name": "Návrat na hotel", "price": "", "time": "18:30"}]}, {"date": "so 19. 9.", "id": "d3", "label": "DEN 3", "leftover": false, "meta": "Sever: zahrada, vila, kostel a pláže", "stops": [{"category": "Ostatní", "desc": "nejstarší botanická zahrada jižní polokoule: obří lekníny Victoria amazonica, 80 druhů palem, koření. Vstup ~Rs 300, na okruh počítejte 1–1,5 h; u vstupu se vyplatí průvodce.", "id": "s1_ssr_garden", "mapQuery": "SSR Botanical Garden, Pamplemousses, Mauritius", "name": "Botanická zahrada Pamplemousses (SSR)", "price": "Rs 300", "time": "9:00"}, {"category": "Muzeum", "desc": "bývalý cukrovar Beau Plan, dnes špičkové muzeum: historie cukru, otroctví, rumu a čaje; interaktivní expozice končí ochutnávkou 15 druhů cukru a degustací rumu. Vstup ~Rs 450 ≈ 200 Kč, ~1,5–2 h.", "id": "s2_aventure_sucre", "mapQuery": "L'Aventure du Sucre, Pamplemousses, Mauritius", "name": "L'Aventure du Sucre (cukrovar)", "price": "~Rs 450 ≈ 200 Kč", "time": "10:45"}, {"category": "Muzeum", "desc": "koloniální vila z r. 1859 uprostřed sadů: prohlídka, ochutnávka rumu a sirupů a oběd v La Table du Château.", "id": "s3_labourdonnais", "mapQuery": "Chateau de Labourdonnais, Mapou, Mauritius", "name": "Château de Labourdonnais", "price": "~Rs 500 ≈ 225 Kč (prohlídka + degustace)", "time": "12:30"}, {"category": "Kultura", "desc": "ikonický kostelík s červenou střechou (Notre-Dame Auxiliatrice) a výhled na ostrov Coin de Mire. Nejfotografovanější místo severu.", "id": "s4_cap_malheureux", "mapQuery": "Notre Dame Auxiliatrice, Cap Malheureux, Mauritius", "name": "Cap Malheureux", "price": "zdarma", "time": "14:15"}, {"category": "Pláž", "desc": "malá zátoka s nejsytěji tyrkysovou vodou severu, výborné koupání a šnorchlování.", "id": "s5_pereybere", "mapQuery": "Pereybere Beach, Mauritius", "name": "Pláž Pereybère", "price": "zdarma", "time": "15:15"}, {"category": "Jídlo", "desc": "„mauricijské Saint-Tropez“: barevná zátoka plná lodí, obchůdky, kavárny a nejlepší večerní život severu. Procházka po nábřeží a večeře. 15 min od hotelu", "id": "s6_grand_baie", "mapQuery": "Grand Baie, Mauritius", "name": "Grand Baie", "price": "zdarma", "time": "16:30"}]}, {"date": "ne 20. 9.", "id": "d4", "label": "DEN 4", "leftover": false, "meta": "Port Louis + safari Casela (bobová dráha!) 🎢", "stops": [{"category": "Přesun", "desc": "v neděli ráno bez kolon. 30 min", "id": "s1_port_louis", "mapQuery": "Port Louis, Mauritius", "name": "Odjezd do Port Louis", "price": "", "time": "8:30"}, {"category": "Nákupy", "desc": "srdce města: ovoce, koření, bylinné „čaje na všechno“ a suvenýry. V neděli menší, ale dopoledne funguje — ochutnejte dholl puri, národní street food za pár korun.", "id": "s2_central_market", "mapQuery": "Central Market, Port Louis, Mauritius", "name": "Central Market", "price": "zdarma", "time": "9:00"}, {"category": "Ostatní", "desc": "místo, kudy prošlo půl milionu indických dělníků; klíč k pestrosti ostrova. Vstup zdarma, ~45 min.", "id": "s3_aapravasi", "mapQuery": "Aapravasi Ghat, Port Louis, Mauritius", "name": "Aapravasi Ghat (UNESCO)", "price": "zdarma", "time": "10:00"}, {"category": "Jídlo", "desc": "moderní nábřeží s uličkou barevných deštníků, kavárny a restaurace. Pevnost Fort Adelaide vynecháváme, ať zbyde víc času na Caselu.", "id": "s4_caudan", "mapQuery": "Caudan Waterfront, Port Louis, Mauritius", "name": "Caudan Waterfront + oběd", "price": "zdarma", "time": "11:00"}, {"category": "Zvířata", "desc": "(World of Adventures): safari mezi zebrami, pštrosy a nosorožci, lvi a gepardi zblízka, obří želvy a voliéra s tisíci ptáky. K tomu bobová dráha Tulawaka — jediná letní bobovka na ostrově (760 m, jedna jízda je v ceně vstupu!) — a pro odvážné ziplines. Otevřeno do 17:00; na bobovku od 90 cm výšky.", "id": "s5_casela", "mapQuery": "Casela Nature Parks, Cascavelle, Mauritius", "name": "Safari park Casela — celé odpoledne", "price": "Rs 1 100/os. ≈ 500 Kč (vč. safari)", "time": "12:30"}, {"category": "Pláž", "desc": "dlouhá západní pláž hned pod Caselou; ideální místo chytit západ slunce (~18:10) s nohama v písku. Casela zavírá v 17:00, Flic en Flac je 20 min — přesně na sunset.", "id": "s6_flic_en_flac", "mapQuery": "Flic en Flac Beach, Mauritius", "name": "Západ slunce na Flic en Flac", "price": "zdarma", "time": "17:00"}, {"category": "Jídlo", "desc": "nebo večeře cestou v Grand Baie.", "id": "s7_x", "mapQuery": "Návrat na hotel, Mauritius", "name": "Návrat na hotel", "price": "", "time": "18:45"}]}, {"date": "po 21. 9.", "id": "d5", "label": "DEN 5", "leftover": false, "meta": "Jihozápad vnitrozemí: Chamarel a hory 🏆", "stops": [{"category": "Příroda", "desc": "serpentinami k Chamarel. ~1 h 30 min", "id": "s1_x", "mapQuery": "Odjezd do vnitrozemí, Mauritius", "name": "Odjezd do vnitrozemí", "price": "", "time": "8:00"}, {"category": "Muzeum", "desc": "prohlídka palírny a degustace rumu; skvělá restaurace v plantážích na pozdější oběd.", "id": "s2_rhumerie", "mapQuery": "Rhumerie de Chamarel, Mauritius", "name": "Rhumerie de Chamarel", "price": "~Rs 600 ≈ 270 Kč", "time": "9:30"}, {"category": "Příroda", "desc": "duhové vulkanické duny a 100m vodopád (nejvyšší na ostrově) v jednom geoparku. Vstup Rs 800/os., v ceně i výběh obřích želv.", "id": "s3_seven_earth", "mapQuery": "Seven Coloured Earth, Chamarel, Mauritius", "name": "Sedmibarevná země + vodopád Chamarel", "price": "Rs 800", "time": "11:15"}, {"category": "Jídlo", "desc": "proslulá restaurace na kopci s panoramatickým výhledem na jihozápadní pobřeží a horu Le Morne; kreolská a francouzská kuchyně. Rezervace se vyplatí, hlavně stůl na terase s výhledem.", "id": "s4_le_chamarel_restaurant", "mapQuery": "Le Chamarel Restaurant, Chamarel, Mauritius", "name": "Oběd — Le Chamarel Restaurant", "price": "~600–900 Kč/os.", "time": "12:45"}, {"category": "Příroda", "desc": "vyhlídky Gorges Viewpoint a Alexandra Falls: kaňon plný pralesa, kroužící faetoni. Krátké procházky zdarma.", "id": "s5_black_river", "mapQuery": "Gorges Viewpoint, Black River Gorges National Park, Mauritius", "name": "NP Black River Gorges", "price": "zdarma", "time": "14:00"}, {"category": "Příroda", "desc": "posvátné jezero v kráteru: hinduistické chrámy, opice a 33m sochy Šivy a Durgy. Zdarma, do chrámů se zouvá.", "id": "s6_ganga_talao", "mapQuery": "Ganga Talao, Grand Bassin, Mauritius", "name": "Grand Bassin (Ganga Talao)", "price": "zdarma", "time": "15:30"}, {"category": "Příroda", "desc": "(Curepipe) — kruhový výhled na celý ostrov za soumraku. pak 45 min dálnicí domů", "id": "s7_trou_aux_cerfs", "mapQuery": "Trou aux Cerfs, Curepipe, Mauritius", "name": "Kráter Trou aux Cerfs", "price": "zdarma, kdykoli", "time": "16:45"}]}, {"date": "út 22. 9.", "id": "d6", "label": "DEN 6", "leftover": true, "meta": "🟡 Zbylo — k rozhodnutí", "stops": [{"category": "Pláž", "desc": "(východ) — celodenní plavba: šnorchl v laguně, grilovaný oběd na palubě, vodopád GRSE, pár hodin na rajském ostrůvku. ~1 700 Kč/os. Nejlogičtější náplň tohoto dne.", "id": "s1_ile_aux_cerfs", "mapQuery": "Ile aux Cerfs, Mauritius", "name": "Katamarán na Île aux Cerfs", "price": "~1 700 Kč/os.", "time": "🟡"}, {"category": "Moře", "desc": "kilometry nejbělejšího písku na východním pobřeží (obvykle spolu s katamaránem).", "id": "s2_belle_mare", "mapQuery": "Belle Mare Beach, Mauritius", "name": "Belle Mare", "price": "zdarma", "time": "🟡"}, {"category": "Příroda", "desc": "Grand River South East, ústí vodopádu do moře — vidět z lodi při katamaránu.", "id": "s3_grse", "mapQuery": "GRSE Waterfall, Grand River South East, Mauritius", "name": "Vodopád GRSE", "price": "součást plavby katamaránem", "time": "🟡"}, {"category": "Pláž", "desc": "klidná západní pláž a malé historické muzeum (dřív byla na dni 2).", "id": "s4_la_preneuse", "mapQuery": "La Preneuse Beach Martello Tower, Mauritius", "name": "La Preneuse + Martellova věž", "price": "", "time": "🟡"}, {"category": "Pláž", "desc": "mořský park s korály; na den odletu ho vynecháváme, tady by se vešlo.", "id": "s5_blue_bay", "mapQuery": "Blue Bay Marine Park, Mauritius", "name": "Pořádné šnorchlování v Blue Bay", "price": "pláž zdarma · glass-bottom ~Rs 450 ≈ 200 Kč/os.", "time": "🟡"}]}, {"date": "st 23. 9.", "id": "d7", "label": "DEN 7", "leftover": false, "meta": "Jih cestou na letiště + odlet 🛫", "stops": [{"category": "Přesun", "desc": "dnes bereme vše s sebou, končíme rovnou na letišti (je na jihovýchodě, kam stejně míříme).", "id": "s1_x", "mapQuery": "Snídaně, check-out a naložení kufrů, Mauritius", "name": "Snídaně, check-out a naložení kufrů", "price": "", "time": "8:00"}, {"category": "Muzeum", "desc": "zvlněné čajové lány, muzeum a degustace (nezapomeňte vanilkový čaj).", "id": "s2_bois_cheri", "mapQuery": "Bois Cheri Tea Factory, Mauritius", "name": "Čajová plantáž Bois Chéri", "price": "~Rs 300–400 ≈ 135–180 Kč", "time": "9:30"}, {"category": "Ostatní", "desc": "divoké jižní pobřeží bez laguny, oceán bijící do útesů.", "id": "s3_gris_gris", "mapQuery": "Gris Gris, Souillac, Mauritius", "name": "Gris Gris & La Roche qui Pleure", "price": "zdarma", "time": "11:00"}, {"category": "Zvířata", "desc": "obří želvy (můžete je krmit), krokodýli, motýli; restaurace přímo v parku.", "id": "s4_la_vanille", "mapQuery": "La Vanille Nature Park, Riviere des Anguilles, Mauritius", "name": "La Vanille Nature Park + oběd", "price": "~Rs 500–600 ≈ 225–270 Kč", "time": "12:00"}, {"category": "Přesun", "desc": "nábřeží s výhledem na Lion Mountain, poslední kreolská atmosféra kousek od letiště.", "id": "s5_mahebourg", "mapQuery": "Mahebourg Monday Market, Mauritius", "name": "Mahébourg", "price": "zdarma", "time": "14:30"}, {"category": "Pláž", "desc": "rychlá zastávka na pláži a fotky tyrkysové laguny. Bez šnorchlování — ať jste na let suší a v pohodě.", "id": "s6_blue_bay", "mapQuery": "Blue Bay Marine Park, Mauritius", "name": "Blue Bay", "price": "pláž zdarma · glass-bottom ~Rs 450 ≈ 200 Kč/os.", "time": "15:15"}, {"category": "Muzeum", "desc": "auto vrátíte rovnou na letišti (domluvte s půjčovnou vrácení na podvečer), pak odbavení a poslední nákup (rum, vanilka, čaj v duty free).", "id": "s7_letiste", "mapQuery": "Sir Seewoosagur Ramgoolam International Airport, Mauritius", "name": "Vrácení auta a letiště SSR", "price": "", "time": "16:30"}, {"category": "Přesun", "desc": "✈️ — sbohem, Mauricie!", "id": "s8_x", "mapQuery": "Odlet, Mauritius", "name": "Odlet", "price": "", "time": "večer"}]}], "id": "mauricius", "name": "Mauricius", "order": 0, "subtitle": "Le Palmiste Resort & Spa · Trou aux Biches · pronajaté auto"}];
+
+var CATS = ["Přesun","Pláž","Příroda","Kultura","Muzeum","Zvířata","Jídlo","Nákupy","Moře","Vyhlídka","Ostatní"];
+var CATCOL = {"Přesun":"#e3e9ee","Pláž":"#d6f0f5","Příroda":"#dcefe0","Kultura":"#efe4d6","Muzeum":"#e8e0f2","Zvířata":"#f5e6d0","Jídlo":"#ffe9d9","Nákupy":"#f3ddef","Moře":"#d5e6f7","Vyhlídka":"#fdf0c8","Ostatní":"#e8eef3"};
+
+var state = {trips:{}, view:"list", tripId:null};
+var db=null, dbMode=false, dbReady=false;
+var LS="cestovani_v1";
+
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function genId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function el(id){return document.getElementById(id);}
+function toast(m){var t=el("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove("show");},2200);}
+
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS))||{};}catch(e){return {};}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(state.trips));}catch(e){}}
+
+function tripsSorted(){
+  return Object.keys(state.trips).map(function(k){return state.trips[k];})
+    .sort(function(a,b){return (a.order||0)-(b.order||0)||String(a.name).localeCompare(String(b.name));});
+}
+
+// ---------- storage ----------
+async function persistTrip(t){
+  state.trips[t.id]=t; saveLocal(); render();
+  if(dbMode&&db){try{await db.doc("trips/"+t.id).set(t);}catch(e){toast("Ukládání do cloudu selhalo");}}
+}
+async function removeTrip(id){
+  delete state.trips[id]; saveLocal();
+  if(state.tripId===id){state.view="list";state.tripId=null;}
+  render();
+  if(dbMode&&db){try{await db.doc("trips/"+id).delete();}catch(e){}}
+}
+
+async function initStore(){
+  state.trips=loadLocal();
+  if(!Object.keys(state.trips).length&&typeof SEED_TRIPS!=="undefined"){SEED_TRIPS.forEach(function(t){state.trips[t.id]=t;});saveLocal();}
+  render();
+  if(window.claude&&typeof claude.use==="function"){
+    var got=null;
+    try{got=await claude.use("db");}catch(e){got=null;}
+    if(got){
+      db=got;dbMode=true;
+      var pending=loadLocal(); // migrate any pre-db local trips
+      var first=true;
+      try{
+        db.collection("trips").onSnapshot(function(snap){
+          var t={};
+          snap.docs.forEach(function(d){if(d.exists){t[d.id]=d.data();}});
+          if(first){
+            first=false;dbReady=true;
+            // push local-only trips that aren't in the cloud yet
+            Object.keys(pending).forEach(function(id){
+              if(!t[id]){t[id]=pending[id];try{db.doc("trips/"+id).set(pending[id]);}catch(e){}}
+            });
+          }
+          state.trips=t;saveLocal();render();
+          setSync(true);
+        },function(err){setSync(false);});
+      }catch(e){dbMode=false;}
+      setSync(true);
+    }else{
+      setSync(false);
+    }
+  }else{
+    setSync(false);
+  }
+}
+function setSync(on){
+  var b=el("syncBadge");
+  if(on){b.hidden=false;b.textContent="☁ sync";}
+  else{b.hidden=true;}
+}
+
+// ---------- rendering ----------
+function fmtRange(t){
+  function d(x){if(!x)return "";var p=x.split("-");return p.length===3?(p[2]+". "+p[1]+"."):x;}
+  var a=d(t.dateFrom),b=d(t.dateTo);
+  if(a&&b)return a+" – "+b+" 2026".replace("2026",(t.dateTo||"").split("-")[0]||"");
+  return a||b||"";
+}
+function render(){
+  var v=el("view");
+  el("backBtn").hidden = state.view==="list";
+  el("addTripBtn").hidden = state.view!=="list";
+  if(state.view==="list"){renderList(v);}
+  else{renderTrip(v);}
+}
+
+function renderList(v){
+  var trips=tripsSorted();
+  el("foot").textContent="Data se ukládají "+(dbMode?"do cloudu a synchronizují mezi tvými zařízeními.":"v tomto prohlížeči.");
+  if(!trips.length){
+    v.innerHTML='<div class="empty"><div class="big">🌍</div><b>Zatím žádná cesta</b><div class="muted" style="margin:6px 0 18px">Vytvoř si první itinerář — dny a zastávky s časy, cenami a mapou.</div><button class="btn primary" data-act="addTrip">+ Nová cesta</button></div>';
+    return;
+  }
+  var h="";
+  trips.forEach(function(t){
+    var nd=(t.days||[]).length, ns=(t.days||[]).reduce(function(a,d){return a+((d.stops||[]).length);},0);
+    h+='<div class="tripcard" data-act="openTrip" data-id="'+esc(t.id)+'">'
+      +'<div class="stripe" style="background:'+esc(t.color||"#0e9aa7")+'"></div>'
+      +'<div class="body"><h2>'+esc(t.name||"Bez názvu")+'</h2>'
+      +'<div class="meta">'+esc(fmtRange(t))+(t.base?' · '+esc(t.base):'')+'</div>'
+      +'<div class="meta" style="margin-top:4px">'+nd+' '+plural(nd,"den","dny","dní")+' · '+ns+' '+plural(ns,"zastávka","zastávky","zastávek")+'</div>'
+      +'</div><div class="go">›</div></div>';
+  });
+  v.innerHTML=h;
+}
+function plural(n,a,b,c){n=Math.abs(n);if(n===1)return a;if(n>=2&&n<=4)return b;return c;}
+
+function renderTrip(v){
+  var t=state.trips[state.tripId];
+  if(!t){state.view="list";return render();}
+  el("foot").textContent="";
+  var h='<div class="thead" style="border-left-color:'+esc(t.color||"#0e9aa7")+'">'
+    +'<h2>'+esc(t.name)+'</h2>'
+    +'<div class="tsub">'+esc(fmtRange(t))+(t.base?' · '+esc(t.base):'')+'</div>'
+    +(t.subtitle?'<div class="tsub" style="margin-top:3px">'+esc(t.subtitle)+'</div>':'')
+    +'<div class="trow"><button class="btn ghost" data-act="editTrip">✎ Upravit cestu</button>'
+    +'<button class="btn ghost" data-act="addDay">+ Přidat den</button></div></div>';
+
+  (t.days||[]).forEach(function(d,di){
+    h+='<div class="day'+(d.leftover?' leftover':'')+'">';
+    h+='<div class="dhead"><div class="dnum" style="background:'+esc(t.color||"#0e9aa7")+'">'+esc(d.label||("DEN "+(di+1)))+(d.date?'<small>'+esc(d.date)+'</small>':'')+'</div>'
+      +'<div class="dtitle"><b>'+esc(d.meta||"")+'</b><div class="dm">'+((d.stops||[]).length)+' '+plural((d.stops||[]).length,"zastávka","zastávky","zastávek")+'</div></div>'
+      +'<button class="pill mini" data-act="dayUp" data-di="'+di+'" title="Nahoru">▲</button>'
+      +'<button class="pill mini" data-act="dayDown" data-di="'+di+'" title="Dolů">▼</button>'
+      +'<button class="pill mini" data-act="editDay" data-di="'+di+'">✎</button></div>';
+
+    (d.stops||[]).forEach(function(s,si){
+      var catcol=CATCOL[s.category]||CATCOL["Ostatní"];
+      h+='<div class="stop">';
+      h+='<div class="stoptop">'+(s.time?'<span class="time">'+esc(s.time)+'</span>':'<span class="time"></span>')
+        +'<span class="sname">'+esc(s.name)+'</span>'
+        +(s.category?'<span class="chip" style="background:'+catcol+'">'+esc(s.category)+'</span>':'')+'</div>';
+      if(s.desc)h+='<div class="sdesc">'+esc(s.desc)+'</div>';
+      h+='<div class="sbtns">';
+      if(s.price)h+='<span class="pill price">💰 '+esc(s.price)+'</span>';
+      var mapq=encodeURIComponent(s.mapQuery||(s.name+" "+(t.name||"")));
+      h+='<a class="pill" href="https://www.google.com/maps/search/?api=1&query='+mapq+'" target="_blank" rel="noopener">📍 Mapa</a>';
+      var phq=encodeURIComponent((s.name||"")+" "+(t.name||""));
+      h+='<a class="pill" href="https://www.google.com/search?tbm=isch&q='+phq+'" target="_blank" rel="noopener">📷 Fotky</a>';
+      h+='<button class="pill mini" data-act="stopUp" data-di="'+di+'" data-si="'+si+'">▲</button>';
+      h+='<button class="pill mini" data-act="stopDown" data-di="'+di+'" data-si="'+si+'">▼</button>';
+      h+='<button class="pill mini" data-act="editStop" data-di="'+di+'" data-si="'+si+'">✎ Upravit</button>';
+      h+='</div></div>';
+    });
+    h+='<div class="addrow"><button class="addbtn" data-act="addStop" data-di="'+di+'">+ Přidat zastávku</button></div>';
+    h+='</div>';
+  });
+  h+='<button class="addbtn addday" data-act="addDay">+ Přidat den</button>';
+  v.innerHTML=h;
+}
+
+// ---------- editors (modal) ----------
+function openSheet(html){el("sheet").innerHTML=html;el("ovl").classList.add("open");}
+function closeSheet(){el("ovl").classList.remove("open");}
+
+function tripForm(t){
+  var isNew=!t;
+  t=t||{id:genId(),name:"",subtitle:"",dateFrom:"",dateTo:"",base:"",color:"#0e9aa7",order:tripsSorted().length,days:[]};
+  var colors=["#0e9aa7","#2f6fd0","#e8862c","#d5484a","#2f9e63","#8a5cc9","#c0392b","#16a085"];
+  var sw=colors.map(function(c){return '<button type="button" class="cswatch" data-color="'+c+'" style="width:30px;height:30px;border-radius:50%;border:3px solid '+(t.color===c?"#182430":"#fff")+';background:'+c+'"></button>';}).join(" ");
+  openSheet('<h3>'+(isNew?"Nová cesta":"Upravit cestu")+'</h3><div class="form">'
+    +field("Název","name",t.name,"text","např. Mauricius")
+    +field("Podtitul","subtitle",t.subtitle,"text","hotel, styl cesty…")
+    +'<div class="row2">'+field("Od","dateFrom",t.dateFrom,"date")+field("Do","dateTo",t.dateTo,"date")+'</div>'
+    +field("Základna / hotel","base",t.base,"text","kde bydlíš")
+    +'<div class="field"><label>Barva</label><div id="cbox">'+sw+'</div></div>'
+    +'</div>'
+    +'<div class="formbtns"><button class="btn ghost" data-act="cancel">Zrušit</button><button class="btn primary" data-act="saveTrip" data-id="'+esc(t.id)+'" data-new="'+(isNew?1:0)+'">Uložit</button></div>'
+    +(isNew?'':'<div class="delzone"><button class="btn danger" style="width:100%" data-act="delTrip" data-id="'+esc(t.id)+'">🗑 Smazat celou cestu</button></div>'));
+  el("sheet")._draftColor=t.color;
+  Array.prototype.forEach.call(el("sheet").querySelectorAll(".cswatch"),function(b){
+    b.addEventListener("click",function(){el("sheet")._draftColor=b.getAttribute("data-color");
+      Array.prototype.forEach.call(el("sheet").querySelectorAll(".cswatch"),function(x){x.style.border="3px solid #fff";});
+      b.style.border="3px solid #182430";});
+  });
+}
+function field(label,name,val,type,ph){
+  return '<div class="field"><label>'+esc(label)+'</label><input type="'+(type||"text")+'" data-f="'+name+'" value="'+esc(val||"")+'" placeholder="'+esc(ph||"")+'"></div>';
+}
+function areaField(label,name,val,ph){
+  return '<div class="field"><label>'+esc(label)+'</label><textarea data-f="'+name+'" placeholder="'+esc(ph||"")+'">'+esc(val||"")+'</textarea></div>';
+}
+function readFields(){
+  var o={};Array.prototype.forEach.call(el("sheet").querySelectorAll("[data-f]"),function(i){o[i.getAttribute("data-f")]=i.value;});return o;
+}
+
+function dayForm(di){
+  var t=state.trips[state.tripId];var isNew=(di==null);
+  var d=isNew?{label:"DEN "+(((t.days||[]).length)+1),date:"",meta:"",leftover:false,stops:[]}:t.days[di];
+  openSheet('<h3>'+(isNew?"Nový den":"Upravit den")+'</h3><div class="form">'
+    +field("Označení","label",d.label,"text","např. DEN 3")
+    +field("Datum","date",d.date,"text","např. so 19. 9.")
+    +field("Nadpis dne","meta",d.meta,"text","co se ten den děje")
+    +'<div class="field"><label>Typ</label><select data-f="leftover"><option value="0"'+(d.leftover?"":" selected")+'>Běžný den</option><option value="1"'+(d.leftover?" selected":"")+'>Nápady / k rozhodnutí (žlutý)</option></select></div>'
+    +'</div>'
+    +'<div class="formbtns"><button class="btn ghost" data-act="cancel">Zrušit</button><button class="btn primary" data-act="saveDay" data-di="'+(isNew?-1:di)+'">Uložit</button></div>'
+    +(isNew?'':'<div class="delzone"><button class="btn danger" style="width:100%" data-act="delDay" data-di="'+di+'">🗑 Smazat den</button></div>'));
+}
+
+function stopForm(di,si){
+  var t=state.trips[state.tripId];var isNew=(si==null);
+  var s=isNew?{time:"",name:"",category:"Ostatní",price:"",desc:"",mapQuery:""}:t.days[di].stops[si];
+  var opts=CATS.map(function(c){return '<option'+(s.category===c?" selected":"")+'>'+c+'</option>';}).join("");
+  openSheet('<h3>'+(isNew?"Nová zastávka":"Upravit zastávku")+'</h3><div class="form">'
+    +'<div class="row2">'+field("Čas","time",s.time,"text","9:00")+'<div class="field"><label>Kategorie</label><select data-f="category">'+opts+'</select></div></div>'
+    +field("Název","name",s.name,"text","co / kam")
+    +areaField("Popis","desc",s.desc,"detaily, tipy…")
+    +field("Cena","price",s.price,"text","např. ~200 Kč/os.")
+    +field("Mapa (název místa)","mapQuery",s.mapQuery,"text","co hledat v Google Maps")
+    +'</div>'
+    +'<div class="formbtns"><button class="btn ghost" data-act="cancel">Zrušit</button><button class="btn primary" data-act="saveStop" data-di="'+di+'" data-si="'+(isNew?-1:si)+'">Uložit</button></div>'
+    +(isNew?'':'<div class="delzone"><button class="btn danger" style="width:100%" data-act="delStop" data-di="'+di+'" data-si="'+si+'">🗑 Smazat zastávku</button></div>'));
+}
+
+// ---------- actions ----------
+function currentTrip(){return state.trips[state.tripId];}
+function move(arr,i,dir){var j=i+dir;if(j<0||j>=arr.length)return false;var tmp=arr[i];arr[i]=arr[j];arr[j]=tmp;return true;}
+
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-act]");if(!b)return;
+  var act=b.getAttribute("data-act");
+  var di=b.getAttribute("data-di"), si=b.getAttribute("data-si");
+  di=di==null?null:parseInt(di,10); si=si==null?null:parseInt(si,10);
+  var t=currentTrip();
+
+  if(act==="back"){state.view="list";state.tripId=null;render();}
+  else if(act==="addTrip"){tripForm(null);}
+  else if(act==="openTrip"){state.tripId=b.getAttribute("data-id");state.view="trip";render();window.scrollTo(0,0);}
+  else if(act==="cancel"){closeSheet();}
+  else if(act==="editTrip"){tripForm(t);}
+  else if(act==="saveTrip"){
+    var f=readFields();var id=b.getAttribute("data-id");var isNew=b.getAttribute("data-new")==="1";
+    var existing=state.trips[id]||{days:[],order:tripsSorted().length};
+    var trip=Object.assign({},existing,{id:id,name:f.name||"Bez názvu",subtitle:f.subtitle||"",dateFrom:f.dateFrom||"",dateTo:f.dateTo||"",base:f.base||"",color:el("sheet")._draftColor||"#0e9aa7"});
+    if(!trip.days)trip.days=[];
+    closeSheet();persistTrip(trip);
+    if(isNew){state.tripId=id;state.view="trip";render();}
+    toast("Uloženo");
+  }
+  else if(act==="delTrip"){if(confirm("Opravdu smazat celou cestu i se všemi dny?")){var id=b.getAttribute("data-id");closeSheet();removeTrip(id);toast("Cesta smazána");}}
+  else if(act==="addDay"){dayForm(null);}
+  else if(act==="editDay"){dayForm(di);}
+  else if(act==="saveDay"){
+    var f=readFields();var d={label:f.label||"",date:f.date||"",meta:f.meta||"",leftover:f.leftover==="1"};
+    if(di===-1){d.stops=[];d.id=genId();(t.days=t.days||[]).push(d);}
+    else{d.stops=t.days[di].stops||[];d.id=t.days[di].id||genId();t.days[di]=d;}
+    closeSheet();persistTrip(t);toast("Uloženo");
+  }
+  else if(act==="delDay"){if(confirm("Smazat tento den i jeho zastávky?")){t.days.splice(di,1);closeSheet();persistTrip(t);toast("Den smazán");}}
+  else if(act==="dayUp"){if(move(t.days,di,-1))persistTrip(t);}
+  else if(act==="dayDown"){if(move(t.days,di,1))persistTrip(t);}
+  else if(act==="addStop"){stopForm(di,null);}
+  else if(act==="editStop"){stopForm(di,si);}
+  else if(act==="saveStop"){
+    var f=readFields();var s={time:f.time||"",name:f.name||"",category:f.category||"Ostatní",price:f.price||"",desc:f.desc||"",mapQuery:f.mapQuery||""};
+    var day=t.days[di];day.stops=day.stops||[];
+    if(si===-1){s.id=genId();day.stops.push(s);}else{s.id=day.stops[si].id||genId();day.stops[si]=s;}
+    closeSheet();persistTrip(t);toast("Uloženo");
+  }
+  else if(act==="delStop"){if(confirm("Smazat tuto zastávku?")){t.days[di].stops.splice(si,1);closeSheet();persistTrip(t);toast("Smazáno");}}
+  else if(act==="stopUp"){if(move(t.days[di].stops,si,-1))persistTrip(t);}
+  else if(act==="stopDown"){if(move(t.days[di].stops,si,1))persistTrip(t);}
+});
+el("ovl").addEventListener("click",function(e){if(e.target===el("ovl"))closeSheet();});
+document.addEventListener("keydown",function(e){if(e.key==="Escape")closeSheet();});
+
+initStore();
+})();
+</script>
+
+</body>
+</html>
